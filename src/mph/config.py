@@ -69,7 +69,7 @@ class Projects:
     """Which projects mph works with (spec/components/projects.md, REQ-CFG-08):
     Dean's examples (all, none, or the ids listed) and folders of the user's own."""
 
-    examples: bool | tuple[str, ...] = True
+    examples: bool | tuple[str, ...] = False
     folders: tuple[Path, ...] = ()
 
 

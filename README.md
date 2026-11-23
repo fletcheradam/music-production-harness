@@ -33,7 +33,7 @@ path = "/Users/you/dj/samples"   # read-only: never written to
 license = "commercial-pack"
 
 [projects]
-examples = true                  # Dean's example projects: true, false, or a list
+examples = false                 # Dean's example projects: off by default; true or a list turns them on
 folders = []                     # folders of your own projects
 ```
 

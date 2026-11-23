@@ -237,7 +237,7 @@ def test_list_shows_every_project_on_or_off(
     assert re.search(r"off\s+drum-patterns\s+10 benchmarks", out)
     assert "! [projects].examples names 'gone'" in out
     assert "1 benchmark on." in out
-    assert run(cfg_with(tmp_path, {}), "list", "--json") == 0
+    assert run(cfg_with(tmp_path, {"projects": {"examples": True}}), "list", "--json") == 0
     listed = json.loads(capsys.readouterr().out)
     assert "BM-SC-01" in listed["benchmarks_on"] and listed["problems"] == []
     sidechain = next(p for p in listed["projects"] if p["id"] == "sidechain")
@@ -248,7 +248,7 @@ def test_list_shows_every_project_on_or_off(
 def test_show_says_what_a_project_is_and_needs(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    cfg = cfg_with(tmp_path, {})
+    cfg = cfg_with(tmp_path, {"projects": {"examples": True}})
     assert run(cfg, "show", "Sidechain") == 0
     out = capsys.readouterr().out
     assert "Sidechain  (sidechain: Dean's example, on)" in out
@@ -296,7 +296,7 @@ def test_doctor_and_status_see_the_repos_projects(
     assert re.fullmatch(r"8 of 8 examples on, 0 of your own: \d+ benchmarks", line)
     off = doctor.projects_line(projects.discover(projects.Settings(examples=("bass",))))
     assert off == "1 of 8 examples on, 0 of your own: 1 benchmark"
-    cfg = cfg_with(tmp_path, {})
+    cfg = cfg_with(tmp_path, {"projects": {"examples": True}})
     from mph.components import Context  # noqa: PLC0415
     from mph.platform_info import Host  # noqa: PLC0415
 
