@@ -1,0 +1,65 @@
+# spec/components/benchmarks.md#bm-keys-01: one minor ninth shape moved in
+# parallel (chord memory) over BM-DRUM-01, with a delay throw every second bar.
+id = "BM-KEYS-01"
+title = "Detroit parallel stabs"
+hear = "stabs that hang in the air and shift together, dark and hopeful at once, with the echo answering at the end of each phrase."
+bpm = 124
+project = "North star"
+bars = 8
+measure = ["chords"]
+
+[voices.kick]
+grid = "X . . . X . . . X . . . X . . ."
+sound = { role = "kick", words = ["909"] }
+
+[voices.clap]
+grid = ". . . . x . . . . . . . x . . ."
+sound = { role = "clap", words = ["909"] }
+
+[voices.chh]
+grid = ". . x . . . x . . . x . . . x ."
+sound = { role = "hat", words = ["909"] }
+seconds = 0.25
+
+# The minor ninth (root, minor third, fifth, minor seventh, ninth) on C, then
+# moved down to Bb and up to Eb unchanged, on off-beat sixteenths.
+[voices.stabs]
+notes = "-  -  -  C4 -  -  -  -  -  C4 -  -  -  D#4 -  -  | -  -  -  A#3 -  -  -  -  -  A#3 -  -  -  -  -  -"
+gate  = ".  .  .  x  .  .  .  .  .  x  .  .  .  x   .  .  | .  .  .  x   .  .  .  .  .  x   .  .  .  .  .  ."
+chord = [0, 3, 7, 10, 14]
+sound = { synth = "mph_stab" }
+params = { cutoff = 900.0, resonance = 0.3, envmod = 3.5, decay = 0.2, release = 0.15 }
+
+[voices.stabs.mix]
+highpass = 200
+send = { echo = -18, hall = -16 }
+
+# The last stab of every second bar, thrown whole into the dotted-eighth echo.
+[voices.throw]
+notes = "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | -  -  -  -  -  -  -  -  -  -  -  -  -  D#4 -  -"
+gate  = ".  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  x   .  ."
+chord = [0, 3, 7, 10, 14]
+sound = { synth = "mph_stab" }
+params = { cutoff = 900.0, resonance = 0.3, envmod = 3.5, decay = 0.2, release = 0.15 }
+
+[voices.throw.mix]
+highpass = 200
+send = { echo = 0, hall = -16 }
+
+[sends.echo]
+kind = "delay"
+beats = 0.75
+feedback = 0.45
+lowpass = 3000
+pingpong = true
+highpass = 300
+level = -3
+send = { hall = -12 }
+
+[sends.hall]
+kind = "reverb"
+decay_s = 2.6
+damping = 6000
+predelay_ms = 20
+highpass = 250
+level = -6

@@ -1,0 +1,10 @@
+# One of the example projects (spec/components/projects.md).
+name = "North star track 1: Iron and Skin"
+about = """Track 1 in the north star palette, instrumental: a 13-minute piece of Detroit \
+techno with a Jersey garage twist and West African drums played by machines. A 909 four \
+under the iron bell's seven-stroke timeline, djembe and dunun leaning in the jembe feel, \
+parallel minor ninth stabs, a rolling bass that hands over to an M1-style organ bass, and \
+an acid line at the second peak. No voices of any kind."""
+spec = "spec/tracks/north-star.md"
+needs = """Nothing: every part is a SuperCollider synth, so a fresh install renders it. With \
+a catalogue, the drums are picked from it by role (REQ-BEN-05)."""

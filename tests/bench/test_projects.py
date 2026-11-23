@@ -293,9 +293,9 @@ def test_doctor_and_status_see_the_repos_projects(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     line = doctor.projects_line(projects.discover())
-    assert re.fullmatch(r"8 of 8 examples on, 0 of your own: \d+ benchmarks", line)
+    assert re.fullmatch(r"9 of 9 examples on, 0 of your own: \d+ benchmarks", line)
     off = doctor.projects_line(projects.discover(projects.Settings(examples=("bass",))))
-    assert off == "1 of 8 examples on, 0 of your own: 1 benchmark"
+    assert off == "1 of 9 examples on, 0 of your own: 1 benchmark"
     cfg = cfg_with(tmp_path, {"projects": {"examples": True}})
     from mph.components import Context  # noqa: PLC0415
     from mph.platform_info import Host  # noqa: PLC0415
@@ -304,4 +304,4 @@ def test_doctor_and_status_see_the_repos_projects(
     report = doctor.run(cfg, Context(FakeRunner(), host), None)
     assert any(f.check == "projects" and f.status is doctor.Status.OK for f in report.findings)
     cli.cmd_status(cfg, Context(FakeRunner(), host), None)
-    assert re.search(r"^projects\s+8 of 8 examples on", capsys.readouterr().out, re.MULTILINE)
+    assert re.search(r"^projects\s+9 of 9 examples on", capsys.readouterr().out, re.MULTILINE)

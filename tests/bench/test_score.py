@@ -507,3 +507,18 @@ def test_north_star_scores_carry_their_feel() -> None:
     names = [v.name for v in score.all_variants(afro_02)]
     # A take per software, the even take, and the fresh take (REQ-BEN-16).
     assert names == ["renoise", "supercollider", "synth-kit", "even", "fresh-take"]
+
+
+@pytest.mark.req("REQ-BEN-19")
+def test_a_score_asks_for_extra_measurements_by_name() -> None:
+    plain = (
+        'id = "X"\nbpm = 120\nbars = 1\n[voices.kick]\ngrid = "X . . . X . . . X . . . X . . ."\n'
+    )
+    asked = score.load_text('measure = ["pitch", "mono-low", "pitch"]\n' + plain)
+    assert asked.measure == ("pitch", "mono-low")
+    # What is measured afterwards doesn't shape the render.
+    assert asked.digest() == score.load_text(plain).digest()
+    assert score.load_text(plain).measure == ()
+    for wrong in ('"loudness"', '["tempo"]'):
+        with pytest.raises(ScoreError, match="measure lists some of pitch, chords, mono-low"):
+            score.load_text(f"measure = {wrong}\n" + plain)

@@ -47,6 +47,12 @@ HARMONIC_WIDTH = 0.02  # +/- of the fundamental counts as on a harmonic
 FIT_RANGE = (0.75, 1.5)  # break playback-rate factors allowed before doubling or halving
 EXCERPT_PAD_S = 0.05  # resampled either side of a measured excerpt, then cut off
 NO_MATCH_DB = 0.0  # what is left after cancelling against silence: nothing cancels
+PITCH_FFT = 1 << 18  # zero-padded, so a harmonic's peak is read between bins
+PITCH_TOP_HZ = 4000.0  # harmonics summed up to here
+PITCH_STEP_CENTS = 0.25  # candidate fundamentals this far apart
+SEMITONE_CENTS = 100.0
+LOW_BLOCK = 1 << 20  # frames low-passed at a time for the low-end correlation
+STEREO = 2
 
 Audio = np.ndarray
 
@@ -461,6 +467,67 @@ def pitch_hz(signal: Audio, rate: int, low: float, high: float) -> float:
     bend = a - 2 * b + c
     shift = 0.5 * (a - c) / bend if bend > 0 else 0.0
     return float(rate / (lags[best] + shift))
+
+
+def _spectrum(signal: Audio, rate: int) -> tuple[np.ndarray, float]:
+    """A Hann-windowed, zero-padded magnitude spectrum, and its bin width in Hz."""
+    flat = mono(signal).astype(np.float64)
+    flat = flat - flat.mean() if flat.size else flat
+    size = max(PITCH_FFT, 1 << math.ceil(math.log2(max(len(flat), 2))))
+    return np.abs(np.fft.rfft(flat * np.hanning(len(flat)), size)), rate / size
+
+
+def harmonic_pitch(signal: Audio, rate: int, expected_hz: float, span_cents: float = 50) -> float:
+    """Fundamental of a note with many partials, within ``span_cents`` of the
+    pitch expected: the candidate whose harmonics, summed up to 4 kHz, are
+    strongest in the spectrum (BM-BASS-02). Partials that aren't harmonics,
+    such as an organ's fifth, add nothing to any candidate, so they can't pull
+    the answer. 0 if the signal is silent."""
+    spectrum, bin_hz = _spectrum(signal, rate)
+    if not spectrum.any():
+        return 0.0
+    steps = int(span_cents / PITCH_STEP_CENTS)
+    cents = np.arange(-steps, steps + 1) * PITCH_STEP_CENTS
+    candidates = expected_hz * 2 ** (cents / 1200)
+    harmonics = np.arange(1, max(1, int(PITCH_TOP_HZ // expected_hz)) + 1)
+    at = np.outer(candidates, harmonics) / bin_hz
+    strength = np.interp(at, np.arange(len(spectrum)), spectrum).sum(axis=1)
+    return float(candidates[int(np.argmax(strength))])
+
+
+def pitch_classes(signal: Audio, rate: int, low_midi: int, high_midi: int) -> dict[int, float]:
+    """How strongly each pitch class sounds among the fundamentals from
+    ``low_midi`` to ``high_midi``: the spectrum's peak within a quarter tone
+    of each semitone there, the strongest kept per class (BM-KEYS-01). Kept to
+    the chord's own range, a saw's third and fifth harmonics (a fifth and a
+    major third above the octave) fall outside it and aren't read as notes."""
+    spectrum, bin_hz = _spectrum(signal, rate)
+    found: dict[int, float] = {}
+    for note in range(low_midi, high_midi + 1):
+        centre = 440.0 * 2 ** ((note - 69) / 12)
+        first = int(centre * 2 ** (-SEMITONE_CENTS / 2400) / bin_hz)
+        last = int(centre * 2 ** (SEMITONE_CENTS / 2400) / bin_hz) + 1
+        peak = float(spectrum[first:last].max()) if last > first else 0.0
+        found[note % 12] = max(found.get(note % 12, 0.0), peak)
+    return found
+
+
+def low_correlation(data: Audio, rate: int, below_hz: float) -> float:
+    """Correlation of left and right below ``below_hz``: 1 when the low end is
+    mono, 0 when the sides are unrelated, -1 when they cancel (BM-BASS-02,
+    BM-MST-01). Low-passed in blocks, with an FFT brick wall. 1 for silence
+    or a mono file."""
+    if data.ndim < STEREO or data.shape[1] < STEREO:
+        return 1.0
+    sums = np.zeros(3)
+    for start in range(0, len(data), LOW_BLOCK):
+        block = data[start : start + LOW_BLOCK, :2].astype(np.float64)
+        spectra = np.fft.rfft(block, axis=0)
+        spectra[np.fft.rfftfreq(len(block), 1 / rate) > below_hz] = 0
+        left, right = np.fft.irfft(spectra, len(block), axis=0).T
+        sums += (np.dot(left, right), np.dot(left, left), np.dot(right, right))
+    both = math.sqrt(sums[1] * sums[2])
+    return float(sums[0] / both) if both > 0 else 1.0
 
 
 def flatness(signal: Audio, rate: int, above_hz: float = FLATNESS_FROM_HZ) -> float:

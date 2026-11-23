@@ -1,0 +1,7 @@
+# spec/tracks/north-star.md#bm-nst-03: bars 97-136 of Iron and Skin (BM-NST-01):
+# groove B handing over to the Jersey sections.
+id = "BM-NST-03"
+title = "Iron and Skin, bars 97-136: into Jersey"
+hear = "the full Detroit groove, then at bar 9 of the block the rolling bass gives way to the organ bass: round, woody and honking, with the strings opening above it and the bell and slaps coming back halfway through."
+project = "North star track 1: Iron and Skin"
+excerpt = { of = "BM-NST-01", bars = [97, 136] }

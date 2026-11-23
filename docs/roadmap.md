@@ -11,9 +11,9 @@ when an item ships or the order changes.
 |---|---|---|
 | 1 | Spec, config, Keychain secrets, doctor and installers, CI | done |
 | 2 | Sample catalogue and search engine | done |
-| 3 | Benchmark kit and the listening page | most benchmarks built; effects, vocals and the rest of the north star to go |
+| 3 | Benchmark kit and the listening page | most benchmarks built, the north star's stabs and organ bass too (2026-11-23); effects, the borrowed conga groove and the layered kick to go. In this fork, no vocals (Adam) |
 | 4 | Renoise bridge and mastering | bridge built for drums and arranged tracks; melodic parts in Renoise (#30) and mastering (#10) to go |
-| 5 | The first track, a 13-minute piece in the north star palette | waits for step 3 |
+| 5 | The first track, a 13-minute piece in the north star palette | first version built, instrumental: Iron and Skin (spec/tracks/north-star.md), waiting for Adam's ear |
 | later | Live performance from the laptop keyboard, then MIDI controllers | after full tracks render |
 
 Benchmarks come before tracks (spec/vision.md): the first track's spec is

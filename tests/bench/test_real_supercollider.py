@@ -59,6 +59,7 @@ def test_bm_sc_01_takes_pass_with_real_supercollider(
 
 @pytest.mark.req("REQ-BEN-13")
 @pytest.mark.req("REQ-BEN-01")
+@pytest.mark.req("REQ-BEN-19")
 @pytest.mark.parametrize(
     ("benchmark_id", "take"),
     [
@@ -66,6 +67,8 @@ def test_bm_sc_01_takes_pass_with_real_supercollider(
         ("BM-AFRO-01", "flattened"),
         ("BM-AFRO-02", "supercollider"),
         ("BM-AFRO-02", "even"),
+        ("BM-KEYS-01", "supercollider"),
+        ("BM-BASS-02", "supercollider"),
     ],
 )
 def test_north_star_takes_pass_with_real_supercollider(
@@ -82,8 +85,12 @@ def test_north_star_takes_pass_with_real_supercollider(
     measured = outcome.report["measurements"]
     failures = [m for m in measured if not m["passed"]]  # type: ignore[attr-defined]
     assert failures == []
-    has_feel = any(m["name"].startswith("feel:") for m in measured)  # type: ignore[attr-defined]
-    assert has_feel == (take != "flattened")  # the flattened take has no triplets left
+    names = [str(m["name"]) for m in measured]  # type: ignore[attr-defined]
+    triplets = benchmark_id.startswith("BM-AFRO") and take != "flattened"
+    assert any(n.startswith("feel:") for n in names) == triplets  # flattened has none left
+    asked = {"BM-KEYS-01": ("chords:",), "BM-BASS-02": ("pitch:", "mono low end")}
+    for prefix in asked.get(benchmark_id, ()):  # REQ-BEN-19
+        assert any(n.startswith(prefix) for n in names), prefix
 
 
 # --- the mix (REQ-MIX-01 to REQ-MIX-04) --------------------------------------------------

@@ -21,7 +21,8 @@ sample rate of its own (REQ-TRK-06).
 
 Rows can hold several bars, split by ``|`` (REQ-BEN-17), and a melodic voice
 can play a chord shape on every note (REQ-BEN-18). A score can mix its voices
-through strips, sends and automation (spec/components/mix.md, ``mix.py``).
+through strips, sends and automation (spec/components/mix.md, ``mix.py``),
+and ask for pitch and stereo measurements by name in ``measure`` (REQ-BEN-19).
 """
 
 from __future__ import annotations
@@ -59,6 +60,7 @@ BAR = "|"  # between the bars of a row that holds several (REQ-BEN-17)
 MAX_CHORD = 8  # notes in one chord shape (REQ-BEN-18)
 CHORD_RANGE = (-24, 36)  # semitones from the note
 RATES = (44100, 48000, 88200, 96000, 176400, 192000)  # a track's own rate (REQ-TRK-06)
+MEASUREMENTS = ("pitch", "chords", "mono-low")  # asked for by name (REQ-BEN-19)
 
 
 class ScoreError(ValueError):
@@ -261,6 +263,7 @@ class Score:
     rate: int = 0  # a track's own sample rate (REQ-TRK-06); 0 = the production rate
     sends: tuple[Send, ...] = ()  # shared effects (REQ-MIX-02)
     master: Strip | None = None  # the master strip (REQ-MIX-01)
+    measure: tuple[str, ...] = ()  # measurements beyond the shared ones (REQ-BEN-19)
 
     @property
     def step_s(self) -> float:
@@ -323,6 +326,7 @@ class Score:
         shape = asdict(self)
         shape.pop("variants")  # other variants don't shape this render
         shape.pop("project")  # nor does the group it is listed in
+        shape.pop("measure")  # nor what is measured afterwards (REQ-BEN-19)
         shape["voices"] = [_voice_shape(v) for v in self.voices]
         unused = {
             "sidechain": self.sidechain is None,
@@ -830,6 +834,7 @@ def parse(raw: dict[str, Any]) -> Score:
             sidechain=sidechain,
             sections=sections,
             rate=_rate(raw.get("rate", 0), score.id),
+            measure=_measure(raw.get("measure", []), score.id),
         )
         score = _mixed(score, raw)
     except (KeyError, TypeError) as exc:
@@ -849,6 +854,14 @@ def _rate(raw: object, score_id: str) -> int:
         rates = ", ".join(str(r) for r in RATES)
         raise ScoreError(f"{score_id}: rate is one of {rates}, not {raw!r}")
     return int(str(raw))
+
+
+def _measure(raw: object, score_id: str) -> tuple[str, ...]:
+    """The extra measurements a score asks for by name (REQ-BEN-19)."""
+    names = ", ".join(MEASUREMENTS)
+    if not isinstance(raw, list) or any(m not in MEASUREMENTS for m in raw):
+        raise ScoreError(f"{score_id}: measure lists some of {names}, not {raw!r}")
+    return tuple(dict.fromkeys(str(m) for m in raw))
 
 
 def _mixed(score: Score, raw: dict[str, Any]) -> Score:
