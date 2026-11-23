@@ -33,7 +33,7 @@ prune_after_render = true
 # Dean's projects ship with the repo in examples/projects/: true turns them all on,
 # false turns them all off (a clean slate), or list the ones you want, such as
 # ["drum-patterns", "sidechain"]. `mph projects list` shows them all.
-examples = true
+examples = false
 # Folders of your own projects: each project is a folder with a project.toml and
 # its scores. Use absolute paths or ~/... (`mph projects copy` writes here).
 folders = []

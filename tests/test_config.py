@@ -150,8 +150,8 @@ def test_example_config_is_valid() -> None:
 
 
 @pytest.mark.req("REQ-CFG-08")
-def test_projects_default_to_every_example_and_no_folders() -> None:
-    assert config.load().projects == config.Projects(True, ())
+def test_projects_default_to_no_examples_and_no_folders() -> None:
+    assert config.load().projects == config.Projects(False, ())
 
 
 @pytest.mark.req("REQ-CFG-08")

@@ -49,7 +49,7 @@ score names a sound it pins by its hash (REQ-BEN-16), never by a copy.
 
 ### REQ-PRJ-03: Inherited projects can be turned off
 `[projects]` in the config says which example projects are on: `examples =
-true` (all of them, the default), `false` (none, a clean slate) or a list of
+true` (all of them), `false` (none, a clean slate, the default) or a list of
 project ids. `folders` lists folders that hold the user's own projects.
 mph lists, renders, serves and answers about only the projects that are on,
 and shows the spec's planned benchmarks only for example projects that are
@@ -57,7 +57,9 @@ on. A project of the user's own that has a benchmark id an example also has
 is used instead of that example. `mph projects list` shows every project,
 on or off, with its benchmarks and what it needs.
 - **Why:** Dean, 2026-11-21: a new user can start from a clean, personal
-  slate, or look through Dean's projects and reuse them.
+  slate, or look through Dean's projects and reuse them. Adam, 2026-11-23:
+  this fork starts with the examples off; they stay in the repo as text,
+  because the tests and the spec's benchmarks are built on them.
 - **Verify:** test
 
 ### REQ-PRJ-04: Reuse a project by copying it

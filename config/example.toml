@@ -17,6 +17,6 @@ license = "commercial-pack"
 [projects]
 # Dean's example projects (examples/projects/): true for all of them, false for
 # a clean slate, or a list such as ["drum-patterns", "sidechain"].
-examples = true
+examples = false
 # Folders of your own projects, e.g. ["~/Music/mph-projects"].
 folders = []

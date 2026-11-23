@@ -62,8 +62,8 @@ the one the examples were made with, is
 
 ```toml
 [projects]
-examples = true                       # all of them (the default)
-# examples = false                    # none: a clean slate
+examples = false                      # none: a clean slate (the default)
+# examples = true                     # all of them
 # examples = ["drum-patterns", "sidechain"]
 folders = ["~/Music/mph-projects"]    # your own projects, if any
 ```
