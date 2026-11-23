@@ -18,19 +18,19 @@ sections = [
   { name = "The bell", bars = [17, 32], play = ["kick", "chh", "ohh", "rim", "bell", "shaker"] },
   { name = "Build", bars = [33, 48], play = ["kick", "clap", "chh", "ohh", "rim", "bell", "shaker", "dunun", "bass"] },
   { name = "Groove A", bars = [49, 64], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
-  { name = "Two clocks", bars = [65, 72], play = ["bell", "shaker", "tone", "slap", "dunun", "strings"] },
+  { name = "Two clocks", bars = [65, 72], play = ["bell", "shaker", "tone", "slap", "dunun", "strings_a", "strings_b"] },
   { name = "Groove B", bars = [73, 104], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
-  { name = "Jersey", bars = [105, 120], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "organ", "stabs", "throw", "strings"] },
-  { name = "Jersey", bars = [121, 136], play = ["kick", "clap", "chh", "ohh", "ride", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings"] },
+  { name = "Jersey", bars = [105, 120], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "organ", "stabs", "throw", "strings_a", "strings_b"] },
+  { name = "Jersey", bars = [121, 136], play = ["kick", "clap", "chh", "ohh", "ride", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings_a", "strings_b"] },
   { name = "Dub", bars = [137, 152], play = ["kick", "chh", "ride", "rim", "bass", "stabs", "throw"] },
-  { name = "Breakdown", bars = [153, 168], play = ["bell", "shaker", "stabs", "throw", "strings"] },
+  { name = "Breakdown", bars = [153, 168], play = ["bell", "shaker", "stabs", "throw", "strings_a", "strings_b"] },
   { name = "The ensemble", bars = [169, 176], play = ["bell", "shaker", "tone", "slap", "dunun"] },
-  { name = "Peak", bars = [177, 208], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw", "strings"] },
+  { name = "Peak", bars = [177, 208], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw", "strings_a", "strings_b"] },
   { name = "Acid", bars = [209, 240], play = ["kick", "clap", "chh", "ohh", "rim", "bell", "shaker", "dunun", "acid", "stabs", "throw"] },
   { name = "Dub II", bars = [241, 256], play = ["kick", "chh", "ride", "rim", "acid", "throw"] },
-  { name = "Jersey II", bars = [257, 272], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "slap", "organ", "stabs", "throw", "strings"] },
-  { name = "Peak II", bars = [273, 304], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings"] },
-  { name = "Breakdown II", bars = [305, 320], play = ["bell", "tone", "dunun", "strings"] },
+  { name = "Jersey II", bars = [257, 272], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "slap", "organ", "stabs", "throw", "strings_a", "strings_b"] },
+  { name = "Peak II", bars = [273, 304], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings_a", "strings_b"] },
+  { name = "Breakdown II", bars = [305, 320], play = ["bell", "tone", "dunun", "strings_a", "strings_b"] },
   { name = "Last groove", bars = [321, 352], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
   { name = "Outro", bars = [353, 368], play = ["kick", "chh", "ohh", "rim", "bell", "shaker", "bass"] },
   { name = "Outro", bars = [369, 384], play = ["kick", "chh", "rim", "bell"] },
@@ -172,7 +172,7 @@ accent = ".  .  X  .  .  .  X  .  .  .  X  .  .  .  X  .  | .  .  X  .  .  .  X 
 slide  = ".  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  S  .  .  | .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   | .   .   .   .   .   .   .   .   .   .   .   .   .   S   .   ."
 sound = { synth = "mph_bass" }
 params = { cutoff = 380.0, resonance = 0.3, envmod = 0.5, decay = 0.14, sub = 0.9, glide = 0.06 }
-gain_db = -2
+gain_db = 0
 
 [voices.bass.mix]
 highpass = 30
@@ -235,18 +235,34 @@ lowpass = 3000
 pan = -0.15
 send = { echo = 0, hall = -14 }
 
-# Strings holding the same shape without the ninth, one chord a bar.
-[voices.strings]
-notes = "C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | A#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | G#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -"
-gate  = "x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x   -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x   -  -  -  -  -  -  -  -  -  -  -  -  -  -  ."
+# Strings holding the same shape without the ninth, one chord a bar, in two
+# parts that take turns, so each chord rings out while the next swells in.
+[voices.strings_a]
+notes = "C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | A#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -"
+gate  = "x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . | .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . | x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . | .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ."
 chord = [0, 3, 7, 10]
 sound = { synth = "mph_strings" }
 params = { attack = 0.6, release = 1.2, cutoff = 4000.0, vibrato = 0.08 }
 gain_db = -6
 
-[voices.strings.mix]
+[voices.strings_a.mix]
 highpass = 200
 lowpass = 6500
+pan = -0.2
+send = { hall = -8 }
+
+[voices.strings_b]
+notes = "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - | G#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -"
+gate  = ".  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . | x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  . | .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . | x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  ."
+chord = [0, 3, 7, 10]
+sound = { synth = "mph_strings" }
+params = { attack = 0.6, release = 1.2, cutoff = 4000.0, vibrato = 0.08 }
+gain_db = -6
+
+[voices.strings_b.mix]
+highpass = 200
+lowpass = 6500
+pan = 0.2
 send = { hall = -8 }
 
 # A 303 pedal on C for the acid section, opening up over its 32 bars.
@@ -294,7 +310,7 @@ highpass = 25
 # The kick ducks the parts that hold under it.
 [sidechain]
 trigger = "kick"
-targets = ["bass", "organ", "strings", "acid"]
-depth_db = 18.0
+targets = ["bass", "organ", "strings_a", "strings_b", "acid"]
+depth_db = 20.0
 attack_ms = 2.0
-release_ms = 380.0
+release_ms = 400.0

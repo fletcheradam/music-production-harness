@@ -56,8 +56,9 @@ chord memory moving C, C, Bb, Ab, one chord a bar. 392 bars at 122 BPM
 
 The stabs play on off-beat sixteenths, and the last stab of every second
 bar is a voice of its own (`throw`), sent whole into the dotted-eighth echo.
-The kick ducks the bass, the organ bass, the strings and the acid by 18 dB,
-released over 380 ms. Measurements: the shared ones, every chord's
+The kick ducks the bass, the organ bass, the strings and the acid by 20 dB,
+released over 400 ms. The strings are two parts that take turns, a bar
+each, so every chord rings out while the next swells in. Measurements: the shared ones, every chord's
 strongest notes are its own (REQ-BEN-19), and the low end is mono.
 
 Hear: a Detroit techno track where two clocks run at once. A dry 909 four
