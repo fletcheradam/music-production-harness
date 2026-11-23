@@ -67,6 +67,9 @@ from mph.renoise import plan as song_plan
 TEMPLATE_GAP_S = 2.0  # each template hit gets this long to itself
 TEMPLATE_HOLD_S = 0.75  # and is held at most this long, so a pad's release ends before the next
 NOTE_PART = 0.5  # of a step: how much of each note the accent check compares
+PITCH_SKIP_S = 0.01  # REQ-BEN-19: a note's pitch is read after its attack
+PITCH_MIN_S = 0.2  # and over at least this much, its release included
+NOTE_NAMES = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
 PROBE_PITCH = 72  # C5: high enough that aliasing would show
 PROBE_S = 1.0
 PROBE_TAIL_S = 0.2
@@ -309,7 +312,52 @@ def measure(
         if voice.slices:
             edges = slice_edges(score, [e for e in found if e.voice == voice.name])
             found_checks.append(checks.edges(voice.name, stems[voice.name], edges, rate))
+    found_checks += pitched(score, reference, templates, rate)
     return found_checks
+
+
+def _alone(reference: dict[str, audio.Audio], event: Event, rate: int) -> tuple[audio.Audio, str]:
+    """A template note, from just after its attack to its held end, and where
+    it came from, for REQ-BEN-19."""
+    start = event.sample(rate) + round(PITCH_SKIP_S * rate)
+    frames = round(max(event.length_s, PITCH_MIN_S) * rate)
+    where = _note_name(event.pitch) + (" accented" if event.accent else "")
+    return reference[event.voice][start : start + frames], where
+
+
+def _note_name(note: int) -> str:
+    return f"{NOTE_NAMES[note % 12]}{note // 12 - 1}"
+
+
+def pitched(
+    score: Score, reference: dict[str, audio.Audio], templates: Sequence[Event], rate: int
+) -> list[checks.Check]:
+    """The pitch and chord measurements a score asks for (REQ-BEN-19), on each
+    distinct note of a melodic voice rendered alone (its templates), so the
+    other notes, the mix and the ducking can't confuse them."""
+    found: list[checks.Check] = []
+    for voice in (v for v in score.voices if v.melodic):
+        own = [t for t in templates if t.voice == voice.name]
+        if "pitch" in score.measure and not voice.chord:
+            errors = []
+            for event in own:
+                signal, where = _alone(reference, event, rate)
+                scored = 440.0 * 2 ** ((event.pitch - 69) / 12)
+                heard = audio.harmonic_pitch(signal, rate, scored)
+                if heard:
+                    errors.append((1200 * math.log2(heard / scored), where))
+            found += checks.pitch(voice.name, errors)
+        if "chords" in score.measure and voice.chord:
+            heard_chords = []
+            for event in own:
+                signal, where = _alone(reference, event, rate)
+                notes = [event.pitch + n for n in voice.chord]
+                strength = audio.pitch_classes(signal, rate, min(notes), max(notes))
+                want = frozenset(n % 12 for n in notes)
+                strongest = sorted(strength, key=lambda pc: -strength[pc])[: len(want)]
+                heard_chords.append((f"the chord on {where}", want, frozenset(strongest)))
+            found += checks.chords(voice.name, heard_chords)
+    return found
 
 
 # --- engines --------------------------------------------------------------------------
@@ -1031,6 +1079,9 @@ def run(
     found_checks.append(
         checks.determinism(rendered.master, rendered.again, null_limit_db=null_limit)
     )
+    if "mono-low" in score.measure:  # REQ-BEN-19
+        low = audio.low_correlation(rendered.master, rate, checks.MONO_LOW_HZ)
+        found_checks.append(checks.mono_low(low))
     measured = audio.levels(rendered.master, rate)
     found_checks.append(checks.lead_in(measured))
     gain_db = _ceiling_gain(rendered.master, rate)

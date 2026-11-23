@@ -1,0 +1,36 @@
+# spec/components/benchmarks.md#bm-bass-02: the Korg M1 "Organ 2" garage bass over BM-DRUM-02
+id = "BM-BASS-02"
+title = "Jersey organ bass"
+hear = "round, woody and percussive, with the honk of early-90s New Jersey and New York garage."
+bpm = 122
+project = "North star"
+bars = 8
+swing = 0.58
+measure = ["pitch", "mono-low"]
+
+[voices.kick]
+grid = "X . . . X . . . X . . . X . . ."
+sound = { role = "kick" }
+
+[voices.clap]
+grid = ". . . . x . . . . . . . x . . ."
+sound = { role = "clap" }
+
+[voices.chh]
+grid = "x x x x x x x x x x x x x x x x"
+sound = { role = "hat" }
+chokes = ["ohh"]
+seconds = 0.25
+
+[voices.ohh]
+grid = ". . o . . . o . . . o . . . o ."
+sound = { role = "hat_open" }
+
+# A syncopated line with octave jumps: C in the first bar, F and G in the
+# second, the jumps accented.
+[voices.organ]
+notes  = "C2 -  -  C3 -  -  C2 -  -  C2 -  C3 -  -  A#1 -  | F1 -  -  F2 -  -  F1 -  -  F1 -  F2 -  G1 G2 -"
+gate   = "x  .  .  x  .  .  x  .  .  x  .  x  .  .  x   .  | x  .  .  x  .  .  x  .  .  x  .  x  .  x  x  ."
+accent = ".  .  .  X  .  .  .  .  .  .  .  X  .  .  .   .  | .  .  .  X  .  .  .  .  .  .  .  X  .  .  X  ."
+sound = { synth = "mph_organ" }
+params = { cutoff = 1200.0, envmod = 2.0, decay = 0.12, chorus = 0.3, fifth = 0.25 }

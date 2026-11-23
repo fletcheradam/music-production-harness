@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import soundfile
 
-from mph.bench import audio, osc
+from mph.bench import audio, checks, osc
 from mph.bench.score import Event
 from mph.deliver import DeliveryError, deliver, tpdf_quantise
 
@@ -226,6 +226,72 @@ def harmonic_tone(freq: float, seconds: float = 0.2, harmonics: int = 10) -> np.
     t = np.arange(round(seconds * RATE)) / RATE
     wave = sum(np.sin(2 * np.pi * n * freq * t) / n for n in range(1, harmonics + 1))
     return np.stack([wave, wave], axis=1).astype(np.float32)
+
+
+@pytest.mark.req("REQ-BEN-19")
+@pytest.mark.parametrize("off_cents", [0.0, 7.0, -20.0])
+def test_a_note_with_a_fifth_above_is_measured_on_its_harmonics(off_cents: float) -> None:
+    # An organ: the note's harmonics plus a partial a fifth above, which isn't
+    # one of them. The fifth would halve a period-based reading; here it adds
+    # nothing, and the note is read to within a cent of where it is.
+    for freq in (43.65, 65.41, 261.63):
+        played = freq * 2 ** (off_cents / 1200)
+        t = np.arange(round(0.12 * RATE)) / RATE
+        wave = harmonic_tone(played, seconds=0.12)[:, 0] + 0.3 * np.sin(
+            2 * np.pi * 1.5 * played * t
+        )
+        heard = audio.harmonic_pitch(np.stack([wave, wave], axis=1), RATE, freq)
+        assert 1200 * np.log2(heard / freq) == pytest.approx(off_cents, abs=1.0)
+    assert audio.harmonic_pitch(np.zeros((4800, 2), np.float32), RATE, 65.41) == 0.0
+    assert audio.harmonic_pitch(np.zeros((0, 2), np.float32), RATE, 65.41) == 0.0
+
+
+@pytest.mark.req("REQ-BEN-19")
+def test_a_chords_strongest_pitch_classes_are_its_fundamentals() -> None:
+    # A minor ninth on C4 of saws (all harmonics): the fifth and major third
+    # in their harmonics lie above the chord's range, so only its notes are read.
+    notes = [60 + n for n in (0, 3, 7, 10, 14)]
+    t = np.arange(round(0.2 * RATE)) / RATE
+    chord = sum(
+        np.sin(2 * np.pi * k * 440 * 2 ** ((n - 69) / 12) * t) / k
+        for n in notes
+        for k in range(1, 12)
+    )
+    found = audio.pitch_classes(np.stack([chord, chord], axis=1), RATE, 60, 74)
+    strongest = sorted(found, key=lambda pc: -found[pc])[:5]
+    assert set(strongest) == {n % 12 for n in notes}
+    assert set(found) == set(range(12))
+
+
+@pytest.mark.req("REQ-BEN-19")
+def test_the_low_end_correlation_ignores_what_is_above_it() -> None:
+    t = np.arange(RATE * 3) / RATE
+    low = np.sin(2 * np.pi * 50 * t)
+    high = np.sin(2 * np.pi * 2000 * t)
+    # The same sub on both sides, the highs opposite: mono below 120 Hz.
+    wide_top = np.stack([low + high, low - high], axis=1)
+    assert audio.low_correlation(wide_top, RATE, 120.0) == pytest.approx(1.0, abs=1e-3)
+    # The sub itself out of phase between the sides.
+    assert audio.low_correlation(np.stack([low, -low], axis=1), RATE, 120.0) < -0.99
+    assert audio.low_correlation(np.zeros((100, 2)), RATE, 120.0) == 1.0
+    assert audio.low_correlation(np.zeros((100, 1)), RATE, 120.0) == 1.0
+
+
+@pytest.mark.req("REQ-BEN-19")
+def test_pitch_chord_and_mono_checks_say_what_is_off() -> None:
+    assert checks.pitch("organ", []) == []
+    (good,) = checks.pitch("organ", [(3.0, "C2"), (-6.5, "F1")])
+    assert good.passed and good.value == 6.5 and good.note == "F1, 2 notes checked"
+    (bad,) = checks.pitch("organ", [(12.0, "G1 accented")])
+    assert not bad.passed and "G1 accented" in bad.note
+    assert checks.chords("stabs", []) == []
+    right = frozenset({0, 3, 7, 10, 2})
+    (fine,) = checks.chords("stabs", [("the chord on C4", right, right)])
+    assert fine.passed and fine.note == "1 chords checked"
+    off = frozenset({0, 3, 7, 10, 4})
+    (wrong,) = checks.chords("stabs", [("the chord on C4", right, off)])
+    assert not wrong.passed and wrong.note == "the chord on C4: heard [4] in place of [2]"
+    assert checks.mono_low(0.95).passed and not checks.mono_low(0.5).passed
 
 
 def test_pitch_is_found_within_the_range_asked() -> None:

@@ -412,6 +412,34 @@ whole chord, and the aliasing probe (BM-BASS-01) plays its first note alone.
   users play chords, and it keeps each note's oscillators band-limited.
 - **Verify:** test
 
+### REQ-BEN-19: Pitch, chord and stereo measurements
+A score can ask for measurements beyond the shared ones by naming them in
+`measure`, from `pitch`, `chords` and `mono-low`:
+- `pitch`: every distinct note of each melodic voice without a chord,
+  rendered alone (its template, REQ-BEN-01), is within 10 cents of its
+  scored pitch. The pitch is the candidate within 50 cents whose harmonics,
+  summed up to 4 kHz, are strongest, read from 10 ms after the note starts
+  over its held length or 0.2 s, whichever is longer. Partials that aren't
+  harmonics, such as an organ's fifth, add nothing to any candidate.
+- `chords`: for every distinct chord of each voice with a `chord`
+  (REQ-BEN-18), rendered alone, the strongest pitch classes, as many as the
+  chord has, are the chord's own. Only fundamentals from the chord's lowest
+  note to its highest are read, each as the spectrum's peak within a quarter
+  tone, so a saw's third and fifth harmonics (a fifth and a major third
+  above the octave) aren't heard as notes.
+- `mono-low`: the master's left and right channels, low-passed at 120 Hz,
+  correlate above 0.9.
+
+The check names the worst note, or the first chord that is off and which
+notes it heard in place of which. A score that asks for none measures as
+before, and what a score measures doesn't change its hash.
+- **Why:** BM-KEYS-01 and BM-BASS-02 are judged on their pitches: a chord
+  shape that moves must keep its notes, and an organ bass must stay in tune
+  across its range. A chorus can smear the low end between the speakers,
+  which club systems punish (BM-MST-01). Asking by name keeps every other
+  benchmark's verdict as it was.
+- **Verify:** test
+
 ## Drum patterns
 
 Grid notation: 16 steps per bar, `x` hit (80% velocity), `X` accent (100%),
@@ -741,6 +769,9 @@ TR-909 live against Tony Allen's Afrobeat kit on *Tomorrow Comes the
 Harvest* (2018).
 Every benchmark here gets a take for each piece of software, made the way
 that software's users would make it (Dean, 2026-11-11, issue #30).
+In this fork the north star is instrumental (Adam, 2026-11-23): BM-VOX-03
+and BM-AFRO-04, the two benchmarks built on a voice, stay written here but
+are not built, and track 1 has no voice (spec/tracks/north-star.md).
 
 Grids here may have 12 steps instead of 16: eighth-note triplets, three to a
 beat (REQ-BEN-13). Beats fall on steps 1, 4, 7 and 10 of a 12-step grid, and
@@ -896,7 +927,7 @@ chord one-shot from the catalogue) played at each root, so higher chords are
 also shorter, as on an old sampler. SuperCollider plays every note of the
 shape as its own synth voice.
 Measurements: every stab lands within 1 ms, and each stab's strongest pitch
-classes are the five notes of its chord.
+classes are the five notes of its chord (`chords`, REQ-BEN-19).
 Hear: stabs that hang in the air and shift together, dark and hopeful at
 once, with the echo answering at the end of each phrase.
 - **Why:** the parallel minor chord is Detroit's harmonic signature, and it
@@ -913,7 +944,7 @@ jumps. In Renoise, the organ is sampled once per octave from SuperCollider
 and played as a multi-sample instrument. SuperCollider plays the synth.
 Measurements: every note lands within 1 ms and within 10 cents of its pitch,
 and the low end stays mono (inter-channel correlation above 0.9 below
-120 Hz) despite the chorus.
+120 Hz) despite the chorus (`pitch` and `mono-low`, REQ-BEN-19).
 Hear: round, woody and percussive, with the honk of early-90s New Jersey
 and New York garage.
 - **Why:** the organ bass is the Jersey sound's signature bass and the

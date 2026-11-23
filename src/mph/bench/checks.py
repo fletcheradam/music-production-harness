@@ -40,6 +40,9 @@ MIX_AFTER_KICK_S = (0.1, 0.2)  # and after it, where the pump is heard
 MIX_AUDIBLE_DB = 2.0  # quieter than bypass after the kick: twice a just-noticeable change
 CLIP_OFFSET_LIMIT_MS = 1.0  # REQ-TRK-02
 CLIP_LEFT_LIMIT_DB = -20.0  # what may be left of a clip after cancelling the recording from it
+PITCH_LIMIT_CENTS = 10.0  # REQ-BEN-19, BM-BASS-02
+MONO_LOW_HZ = 120.0  # REQ-BEN-19: below here, the low end is mono
+MONO_LOW_LIMIT = 0.9  # inter-channel correlation
 
 
 @dataclass(frozen=True, slots=True)
@@ -408,3 +411,37 @@ def clips(voice: str, heard: Sequence[tuple[int, float, float, float]]) -> list[
             f"weakest: the cue at bar {left[0]}, playing at {left[3]:+.1f} dB",
         ),
     ]
+
+
+def pitch(name: str, errors: Sequence[tuple[float, str]]) -> list[Check]:
+    """REQ-BEN-19: each note of a voice, alone, against its scored pitch."""
+    if not errors:
+        return []
+    cents, where = max(errors, key=lambda e: abs(e[0]))
+    return [
+        Check(f"pitch: {name} worst note error (cents)", round(abs(cents), 1),
+              f"<= {PITCH_LIMIT_CENTS}", abs(cents) <= PITCH_LIMIT_CENTS,
+              f"{where}, {len(errors)} notes checked"),
+    ]  # fmt: skip
+
+
+def chords(name: str, heard: Sequence[tuple[str, frozenset[int], frozenset[int]]]) -> list[Check]:
+    """REQ-BEN-19: each chord's strongest pitch classes are its own notes.
+    ``heard`` is (where, the chord's pitch classes, the strongest found)."""
+    if not heard:
+        return []
+    wrong = [(where, want, got) for where, want, got in heard if want != got]
+    note = ""
+    if wrong:
+        where, want, got = wrong[0]
+        note = f"{where}: heard {sorted(got - want)} in place of {sorted(want - got)}"
+    return [
+        Check(f"chords: {name} chords whose strongest notes aren't the chord's", len(wrong),
+              "== 0", not wrong, note or f"{len(heard)} chords checked"),
+    ]  # fmt: skip
+
+
+def mono_low(correlation: float) -> Check:
+    """REQ-BEN-19: the master's low end is mono, whatever chorus sits above it."""
+    return Check(f"mono low end: correlation below {MONO_LOW_HZ:g} Hz", round(correlation, 3),
+                 f"> {MONO_LOW_LIMIT}", correlation > MONO_LOW_LIMIT)  # fmt: skip

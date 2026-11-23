@@ -893,3 +893,41 @@ def test_a_kept_sound_gives_way_to_a_new_request_or_a_missing_file(
     assert chosen(replace(kept, digest="00" * 32)) == "A Kick.wav"  # not in the catalogue
     (lib / "Kick B.wav").unlink()
     assert chosen(kept) == "A Kick.wav"  # gone from disk
+
+
+@pytest.mark.req("REQ-BEN-19")
+def test_pitch_and_chords_are_measured_on_each_note_alone() -> None:
+    rate = 48000
+    loaded = score.load_text(
+        'id = "X"\nbpm = 120\nbars = 1\nmeasure = ["pitch", "chords"]\n'
+        '[voices.bass]\nnotes = "C2 - - - G1 - - - C2 - - - G1 - - -"\n'
+        'gate = "x . . . x . . . x . . . x . . ."\nsound = { synth = "mph_organ" }\n'
+        '[voices.stabs]\nnotes = "C4 - - - - - - - - - - - - - - -"\n'
+        'gate = "x . . . . . . . . . . . . . . ."\nchord = [0, 3, 7, 10, 14]\n'
+        'sound = { synth = "mph_stab" }\n'
+    )
+    templates = render.template_events(loaded, score.events(loaded))
+    frames = round((max(t.time_s for t in templates) + render.TEMPLATE_GAP_S) * rate)
+
+    def tones(voice: str, sharp_cents: float) -> np.ndarray:
+        out = np.zeros(frames)
+        t = np.arange(round(0.5 * rate)) / rate
+        for event in (e for e in templates if e.voice == voice):
+            notes = [event.pitch + n for n in (loaded.voice(voice).chord or (0,))]
+            wave = sum(
+                np.sin(2 * np.pi * k * 440 * 2 ** ((n - 69 + sharp_cents / 100) / 12) * t) / k
+                for n in notes
+                for k in range(1, 9)
+            )
+            out[event.sample(rate) : event.sample(rate) + len(t)] += wave
+        return np.stack([out, out], axis=1)
+
+    in_tune = {"bass": tones("bass", 0.0), "stabs": tones("stabs", 0.0)}
+    found = {c.name: c for c in render.pitched(loaded, in_tune, templates, rate)}
+    assert found["pitch: bass worst note error (cents)"].passed
+    assert found["chords: stabs chords whose strongest notes aren't the chord's"].passed
+    sharp = {"bass": tones("bass", 25.0), "stabs": tones("stabs", 0.0)}
+    pitch = render.pitched(loaded, sharp, templates, rate)[0]
+    assert not pitch.passed and pitch.value == pytest.approx(25.0, abs=1.0)
+    # Asked for nothing, nothing extra is measured.
+    assert render.pitched(replace(loaded, measure=()), in_tune, templates, rate) == []

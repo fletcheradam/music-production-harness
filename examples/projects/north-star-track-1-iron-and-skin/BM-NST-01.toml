@@ -1,0 +1,300 @@
+# spec/tracks/north-star.md#bm-nst-01: Iron and Skin, the whole track.
+# Instrumental: no voice, vocoder or synthetic voice anywhere (Adam, 2026-11-23).
+# Every part is a SuperCollider synth, so it renders on a fresh install.
+id = "BM-NST-01"
+title = "Iron and Skin, the whole track"
+hear = "a Detroit techno track where two clocks run at once. A dry 909 four opens it, and the iron bell's lopsided seven strokes arrive over it, then the djembe and dunun, leaning in the long-short-short jembe feel while the kick stays locked. Parallel minor ninth stabs hang over a rolling bass, with every fourth bar's last stab thrown into the echo. The Jersey sections swap the bass for a round, honking organ bass and open up the strings. The dubs strip back to kick, rim, ride and echoes, the breaks leave the African ensemble on its own, an acid line takes the second peak, and the track winds down to kick and hats for the next DJ. No voices at all."
+project = "North star track 1: Iron and Skin"
+bpm = 122
+bars = 392
+swing = 0.54
+feel = [41, 31, 28]
+seed = 23
+rate = 48000
+measure = ["chords", "mono-low"]
+
+sections = [
+  { name = "DJ intro", bars = [1, 16], play = ["kick", "chh", "rim"] },
+  { name = "The bell", bars = [17, 32], play = ["kick", "chh", "ohh", "rim", "bell", "shaker"] },
+  { name = "Build", bars = [33, 48], play = ["kick", "clap", "chh", "ohh", "rim", "bell", "shaker", "dunun", "bass"] },
+  { name = "Groove A", bars = [49, 64], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
+  { name = "Two clocks", bars = [65, 72], play = ["bell", "shaker", "tone", "slap", "dunun", "strings"] },
+  { name = "Groove B", bars = [73, 104], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
+  { name = "Jersey", bars = [105, 120], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "organ", "stabs", "throw", "strings"] },
+  { name = "Jersey", bars = [121, 136], play = ["kick", "clap", "chh", "ohh", "ride", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings"] },
+  { name = "Dub", bars = [137, 152], play = ["kick", "chh", "ride", "rim", "bass", "stabs", "throw"] },
+  { name = "Breakdown", bars = [153, 168], play = ["bell", "shaker", "stabs", "throw", "strings"] },
+  { name = "The ensemble", bars = [169, 176], play = ["bell", "shaker", "tone", "slap", "dunun"] },
+  { name = "Peak", bars = [177, 208], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw", "strings"] },
+  { name = "Acid", bars = [209, 240], play = ["kick", "clap", "chh", "ohh", "rim", "bell", "shaker", "dunun", "acid", "stabs", "throw"] },
+  { name = "Dub II", bars = [241, 256], play = ["kick", "chh", "ride", "rim", "acid", "throw"] },
+  { name = "Jersey II", bars = [257, 272], play = ["kick", "clap", "chh", "ohh", "shaker", "tone", "slap", "organ", "stabs", "throw", "strings"] },
+  { name = "Peak II", bars = [273, 304], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "organ", "stabs", "throw", "strings"] },
+  { name = "Breakdown II", bars = [305, 320], play = ["bell", "tone", "dunun", "strings"] },
+  { name = "Last groove", bars = [321, 352], play = ["kick", "clap", "chh", "ohh", "ride", "rim", "bell", "shaker", "tone", "slap", "dunun", "bass", "stabs", "throw"] },
+  { name = "Outro", bars = [353, 368], play = ["kick", "chh", "ohh", "rim", "bell", "shaker", "bass"] },
+  { name = "Outro", bars = [369, 384], play = ["kick", "chh", "rim", "bell"] },
+  { name = "DJ outro", bars = [385, 392], play = ["kick", "chh", "rim"] },
+]
+
+# --- the machines: a 909-style kit, straight and locked ---
+
+# Four to the floor, with a push on the last eighth of every fourth bar.
+[voices.kick]
+grid = "X . . . X . . . X . . . X . . . | X . . . X . . . X . . . X . . . | X . . . X . . . X . . . X . . . | X . . . X . . . X . . . X . x ."
+sound = { role = "kick", words = ["909"] }
+
+[voices.kick.mix]
+highpass = 28
+
+[voices.clap]
+grid = ". . . . x . . . . . . . x . . ."
+sound = { role = "clap", words = ["909"] }
+
+[voices.clap.mix]
+highpass = 180
+level = -2
+send = { hall = -16 }
+
+# Closed hats on the sixteenths around the open hats, which they choke.
+[voices.chh]
+grid = "x x . x x x . x x x . x x x . x"
+sound = { role = "hat", words = ["909"] }
+chokes = ["ohh"]
+
+[voices.chh.mix]
+highpass = 350
+pan = 0.15
+level = -4
+
+[voices.ohh]
+grid = ". . o . . . o . . . o . . . o ."
+sound = { role = "hat_open", words = ["909"] }
+
+[voices.ohh.mix]
+highpass = 400
+pan = -0.15
+level = -4
+send = { hall = -22 }
+
+# The ride on the eighths, a 909's washy one, synthesised as a long hat.
+[voices.ride]
+grid = "x . X . x . X . x . X . x . X ."
+sound = { role = "ride", synth = "mph_hat" }
+params = { decay = 0.3 }
+seconds = 0.24
+gain_db = -6
+
+[voices.ride.mix]
+highpass = 500
+pan = 0.3
+level = -4
+send = { hall = -18 }
+
+# A syncopated two-bar figure, into the echo in the dubs.
+[voices.rim]
+grid = ". . . x . . x . . . . x . . x . | . x . . . . x . . . x . . . . ."
+sound = { role = "rim", words = ["909"] }
+
+[voices.rim.mix]
+highpass = 300
+pan = -0.3
+level = -5
+send = { echo = -16 }
+
+[voices.rim.automate]
+echo = [[1, -16], [137, -16], [137, -6], [153, -6], [153, -16], [241, -16], [241, -6], [257, -6], [257, -16]]
+
+# --- the skins and the iron: West African drums on a triplet grid ---
+
+# The standard bell pattern, seven strokes in twelve pulses (BM-AFRO-01).
+[voices.bell]
+grid = "X . x . x x . x . x . x"
+sound = { role = "bell" }
+gain_db = -3
+
+[voices.bell.mix]
+highpass = 400
+pan = 0.25
+level = -3
+send = { hall = -18 }
+
+[voices.shaker]
+grid = "X x x X x x X x x X x x"
+sound = { role = "shaker" }
+humanise = 0.08
+seconds = 0.2
+
+[voices.shaker.mix]
+highpass = 600
+pan = -0.35
+level = -6
+
+# Djembe tones and slaps answering each other, and the dunun leading into
+# beats 3, 4 and 1 (BM-AFRO-02).
+[voices.tone]
+grid = ". x x . . . . x x . . ."
+sound = { role = "djembe", words = ["tone"] }
+params = { stroke = 1 }
+
+[voices.tone.mix]
+highpass = 120
+pan = -0.2
+level = -4
+send = { hall = -20 }
+
+[voices.slap]
+grid = ". . . . x x . . . . x x"
+sound = { role = "djembe", words = ["slap"] }
+params = { stroke = 2 }
+
+[voices.slap.mix]
+highpass = 200
+pan = 0.2
+level = -6
+send = { hall = -20 }
+
+[voices.dunun]
+grid = ". . . . . X . . x . . x"
+sound = { role = "dunun" }
+
+[voices.dunun.mix]
+highpass = 45
+level = -4
+
+# --- the synths: C minor, the chord memory moving C, C, Bb, Ab ---
+
+# Rolling on every sixteenth with octave jumps (Detroit), ducked by the kick.
+[voices.bass]
+notes  = "C2 C2 C2 C2 C2 C2 C3 C2 C2 C2 C2 C2 C2 C2 C3 C2 | C2 C2 C2 C2 C2 C2 C3 C2 C2 C2 C2 C2 C2 C2 G1 G1 | A#1 A#1 A#1 A#1 A#1 A#1 A#2 A#1 A#1 A#1 A#1 A#1 A#1 A#1 A#2 A#1 | G#1 G#1 G#1 G#1 G#1 G#1 G#2 G#1 G#1 G#1 G#1 G#1 G#2 G#2 A#1 A#1"
+gate   = "x  x  x  x  x  x  x  x  x  x  x  x  x  x  x  x  | x  x  x  x  x  x  x  x  x  x  x  x  x  x  x  x  | x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   | x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x"
+accent = ".  .  X  .  .  .  X  .  .  .  X  .  .  .  X  .  | .  .  X  .  .  .  X  .  .  .  X  .  .  .  X  .  | .   .   X   .   .   .   X   .   .   .   X   .   .   .   X   .   | .   .   X   .   .   .   X   .   .   .   X   .   .   .   X   ."
+slide  = ".  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  S  .  .  | .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   | .   .   .   .   .   .   .   .   .   .   .   .   .   S   .   ."
+sound = { synth = "mph_bass" }
+params = { cutoff = 380.0, resonance = 0.3, envmod = 0.5, decay = 0.14, sub = 0.9, glide = 0.06 }
+gain_db = -2
+
+[voices.bass.mix]
+highpass = 30
+lowpass = 300
+resonance = 0.35
+
+# Opening through each build and peak, closing down in the dubs and outro.
+[voices.bass.automate]
+lowpass = [[1, 300], [33, 300], [49, 1400], [73, 1400], [89, 2400], [105, 2400], [137, 500], [153, 500], [177, 900], [193, 3200], [209, 3200], [321, 1600], [337, 2800], [353, 2800], [369, 400]]
+
+# The Jersey organ bass (BM-BASS-02): syncopated, with octave jumps.
+[voices.organ]
+notes  = "C2 -  -  C3 -  -  C2 -  -  C2 -  C3 -  -  G1 -  | C2 -  -  C3 -  -  C2 -  -  C2 -  C3 -  D#2 G2 - | A#1 -  -  A#2 -  -  A#1 -  -  A#1 -  A#2 -  -  F2 -  | G#1 -  -  G#2 -  -  G#1 -  -  G#1 -  G#2 -  A#1 A#2 -"
+gate   = "x  .  .  x  .  .  x  .  .  x  .  x  .  .  x  .  | x  .  .  x  .  .  x  .  .  x  .  x  .  x   x  . | x   .  .  x   .  .  x   .  .  x   .  x   .  .  x  .  | x   .  .  x   .  .  x   .  .  x   .  x   .  x   x   ."
+accent = ".  .  .  X  .  .  .  .  .  .  .  X  .  .  .  .  | .  .  .  X  .  .  .  .  .  .  .  X  .  .   X  . | .   .  .  X   .  .  .   .  .  .   .  X   .  .  .  .  | .   .  .  X   .  .  .   .  .  .   .  X   .  .   X   ."
+sound = { synth = "mph_organ" }
+params = { cutoff = 1200.0, envmod = 2.0, decay = 0.12, chorus = 0.3, fifth = 0.25 }
+gain_db = -1
+
+[voices.organ.mix]
+highpass = 35
+lowpass = 5000
+send = { hall = -22 }
+
+# The minor ninth shape moved in parallel (BM-KEYS-01): root, minor third,
+# fifth, minor seventh and ninth, on off-beat sixteenths.
+[voices.stabs]
+notes = "-  -  -  C4 -  -  -  -  -  C4 -  -  -  -  -  -  | -  -  -  C4 -  -  -  -  -  D#4 -  -  -  -  -  -  | -  -  -  A#3 -  -  -  -  -  A#3 -  -  -  -  -  -  | -  -  -  G#3 -  -  -  -  -  G#3 -  -  -  -  -  -"
+gate  = ".  .  .  x  .  .  .  .  .  x  .  .  .  .  .  .  | .  .  .  x  .  .  .  .  .  x   .  .  .  .  .  .  | .  .  .  x   .  .  .  .  .  x   .  .  .  .  .  .  | .  .  .  x   .  .  .  .  .  x   .  .  .  .  .  ."
+chord = [0, 3, 7, 10, 14]
+sound = { synth = "mph_stab" }
+params = { cutoff = 800.0, resonance = 0.3, envmod = 3.5, decay = 0.2, release = 0.15 }
+gain_db = -5
+
+[voices.stabs.mix]
+highpass = 220
+lowpass = 700
+resonance = 0.25
+pan = 0.15
+send = { echo = -14, hall = -16 }
+
+# Dark at first, opening through the grooves, wide at the peaks, deep in the
+# echo in the dubs.
+[voices.stabs.automate]
+lowpass = [[1, 700], [49, 700], [73, 2500], [105, 3500], [137, 1200], [153, 2400], [177, 2400], [193, 7000], [209, 3000], [257, 3500], [273, 4500], [289, 8000], [305, 3000], [321, 2500], [353, 1500]]
+echo = [[1, -14], [137, -14], [137, -4], [153, -4], [153, -10], [169, -10], [169, -14]]
+
+# The last stab of every second bar, thrown whole into the dotted-eighth echo.
+[voices.throw]
+notes = "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | -  -  -  -  -  -  -  -  -  -  -  -  -  D#4 -  -  | -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | -  -  -  -  -  -  -  -  -  -  -  -  -  A#3 -  -"
+gate  = ".  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  x   .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | .  .  .  .  .  .  .  .  .  .  .  .  .  x   .  ."
+chord = [0, 3, 7, 10, 14]
+sound = { synth = "mph_stab" }
+params = { cutoff = 900.0, resonance = 0.3, envmod = 3.5, decay = 0.2, release = 0.15 }
+gain_db = -7
+
+[voices.throw.mix]
+highpass = 250
+lowpass = 3000
+pan = -0.15
+send = { echo = 0, hall = -14 }
+
+# Strings holding the same shape without the ninth, one chord a bar.
+[voices.strings]
+notes = "C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | C4 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | A#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  | G#3 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -"
+gate  = "x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x  -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x   -  -  -  -  -  -  -  -  -  -  -  -  -  -  .  | x   -  -  -  -  -  -  -  -  -  -  -  -  -  -  ."
+chord = [0, 3, 7, 10]
+sound = { synth = "mph_strings" }
+params = { attack = 0.6, release = 1.2, cutoff = 4000.0, vibrato = 0.08 }
+gain_db = -6
+
+[voices.strings.mix]
+highpass = 200
+lowpass = 6500
+send = { hall = -8 }
+
+# A 303 pedal on C for the acid section, opening up over its 32 bars.
+[voices.acid]
+notes  = "C2 C2 C3 C2 D#2 C2 G2 C2 C2 A#2 C2 C3 C2 F2 C2 G2"
+accent = ".  .  X  .  .   .  X  .  .  .   .  X  .  .  .  X"
+slide  = ".  .  .  .  S   .  .  .  .  S   .  .  .  .  .  ."
+gate   = "x  x  x  .  x   x  x  x  x  x   .  x  x  x  x  x"
+sound = { synth = "mph_acid" }
+params = { cutoff = 420.0, resonance = 0.65, envmod = 0.6, decay = 0.3, accent = 0.6 }
+gain_db = -6
+
+[voices.acid.mix]
+highpass = 40
+lowpass = 400
+send = { echo = -18 }
+
+[voices.acid.automate]
+lowpass = [[1, 400], [209, 400], [225, 2500], [239, 5000], [241, 1200], [257, 600]]
+
+# --- the mix ---
+
+# A dub echo on a dotted eighth, alternating left and right, into the hall.
+[sends.echo]
+kind = "delay"
+beats = 0.75
+feedback = 0.45
+lowpass = 2800
+pingpong = true
+highpass = 300
+level = -3
+send = { hall = -10 }
+
+[sends.hall]
+kind = "reverb"
+decay_s = 3.0
+damping = 6000
+predelay_ms = 25
+highpass = 250
+level = -6
+
+[master]
+highpass = 25
+
+# The kick ducks the parts that hold under it.
+[sidechain]
+trigger = "kick"
+targets = ["bass", "organ", "strings", "acid"]
+depth_db = 18.0
+attack_ms = 2.0
+release_ms = 380.0
